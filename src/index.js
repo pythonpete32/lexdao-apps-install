@@ -14,17 +14,22 @@ const BN = utils.bigNumberify;
 const env = 'rinkeby'; // this is how you set env
 
 // DAO addresses
-const dao = '';
-const acl = '';
+const dao = '0x2aA8F78F70bDeDf20d32b2aF4648d290a4DB0777';
+const acl = '0xaf297a6a643e5e9aca5a915c66e7985c255ecc55';
+const tokens = '0xfd891331070e5e06660ac50a4780984b4164b228';
+const agent = '0x2c79f6f8e2e702cece03d5f4ab65a2fdcac2a037';
+const finance = '0x8b2cc1c9c55885c737b5fcffa6f295adcd167f13';
+const voting = '0x0a77ce9e31d6c762338c95eecaece8431478405f';
+const votingToken = '0x8C32E54439C00E2B34355b8A1590046324bEaeA7';
 
 
 // new apps
-const appId1 ='';
-const appBase1 = '';
-const appId2 ='';
-const appBase2 = '';
-let app1;
-let app2;
+const votingAppId = '0x9fa3927f639745e587912d4b0fea7ef9013bf93fb907d29faeab57417ba6e1d4';
+const votingBase = '0xb4fa71b3352D48AA93D34d085f87bb4aF0cE6Ab5';
+const dotVotingAppId ='0x6bf2b7dbfbb51844d0d6fdc211b014638011261157487ccfef5c2e4fb26b1d7e';
+const dotVotingBase = '0x7b3533c0Add09b19a9890FDD8F93c522a6A6a958';
+let newVoting;
+let dotVoting;
 
 // signatures
 const newAppInstanceSignature = 'newAppInstance(bytes32,address,bytes,bool)';
@@ -32,8 +37,11 @@ const createPermissionSignature =
     'createPermission(address,address,bytes32,address)';
 const grantPermissionSignature = 'grantPermission(address,address,bytes32)';
 const revokePermissionSignature = 'revokePermission(address,address,bytes32)';
-const appInitSignature1 = 'initialize(string,string,uint8)';
-const appInitSignature2 = 'addPowerSource(address,uint8,uint256)';
+const votingInitSignature = 'initialize(address,uint64,uint64,uint64)';
+// MiniMeToken, minQuorum, candidateSupportPct, voteTime, onlyInit
+const dotVotingInitSignature = 'initialize(address,uint256,uint256,uint64)';
+
+
 
 // functions for counterfactual addresses
 async function buildNonceForAddress(address, index, provider) {
@@ -54,42 +62,42 @@ async function firstTx() {
     // counterfactual addresses
     const nonce = await buildNonceForAddress(dao, 0, provider);
     const newAddress = await calculateNewProxyAddress(dao, nonce);
-    votingAggregator = newAddress;
+    newVoting = newAddress;
 
     // app initialisation payloads
-    const appInitPayload1 = await encodeActCall(appInitSignature1, [
-        'Inbox',
-        'INBOX',
-        18,
+    const votingInitPayload = await encodeActCall(votingInitSignature, [
+        votingToken,
+        BN('600000000000000000'),
+        BN('250000000000000000'),
+        259200,
     ]);
 
     // package first transaction
     const calldatum = await Promise.all([
         encodeActCall(newAppInstanceSignature, [
-            appId1,
-            appBase1,
-            appInitPayload1,
-            false,
+            votingAppId,
+            votingBase,
+            votingInitPayload,
+            true,
         ]),
         encodeActCall(createPermissionSignature, [
-            sabVoting,
-            votingAggregator,
-            keccak256('ADD_POWER_SOURCE_ROLE'),
-            sabVoting,
+            tokens,
+            newVoting,
+            keccak256('CREATE_VOTES_ROLE'),
+            voting,
         ]),
         encodeActCall(createPermissionSignature, [
-            sabVoting,
-            votingAggregator,
-            keccak256('MANAGE_POWER_SOURCE_ROLE'),
-            sabVoting,
+            tokens,
+            newVoting,
+            keccak256('MODIFY_SUPPORT_ROLE'),
+            voting,
         ]),
         encodeActCall(createPermissionSignature, [
-            sabVoting,
-            votingAggregator,
-            keccak256('MANAGE_WEIGHTS_ROLE'),
-            sabVoting,
+            tokens,
+            newVoting,
+            keccak256('MODIFY_QUORUM_ROLE'),
+            voting,
         ]),
-        encodeActCall(appInitSignature2, [comAggregator, 1, 1]),
     ]);
 
     const actions = [
@@ -109,16 +117,12 @@ async function firstTx() {
             to: acl,
             calldata: calldatum[3],
         },
-        {
-            to: votingAggregator,
-            calldata: calldatum[4],
-        },
     ];
     const script = encodeCallScript(actions);
 
     await execAppMethod(
         dao,
-        sabVoting,
+        voting,
         'newVote',
         [
             script,
@@ -131,7 +135,7 @@ async function firstTx() {
         env,
     );
 }
-
+/*
 async function secondTx() {
     const nonce = await buildNonceForAddress(dao, 1, provider);
     const newAddress = await calculateNewProxyAddress(dao, nonce);
@@ -150,8 +154,8 @@ async function secondTx() {
 
     const calldatum = await Promise.all([
         encodeActCall(newAppInstanceSignature, [
-            appId2,
-            appBase2,
+            dotVotingAppId,
+            dotVotingBase,
             inboxInitPayload,
             true,
         ]),
@@ -251,12 +255,12 @@ async function secondTx() {
         env,
     );
 }
-
+*/
 const main = async () => {
-    console.log('Generationg vote to install Voting Aggregaor')
+    console.log('Generationg vote to install new voting')
     await firstTx();
-    console.log('Generating vote to Install Inbox Voting')
-    await secondTx();
+    //console.log('Generating vote to Install Inbox Voting')
+    //await secondTx();
 };
 
 main()

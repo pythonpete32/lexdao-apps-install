@@ -60,15 +60,25 @@ async function calculateNewProxyAddress(daoAddress, nonce) {
 
 async function firstTx() {
     // counterfactual addresses
-    const nonce = await buildNonceForAddress(dao, 0, provider);
-    const newAddress = await calculateNewProxyAddress(dao, nonce);
-    newVoting = newAddress;
+    const nonce1 = await buildNonceForAddress(dao, 0, provider);
+    const newAddress1 = await calculateNewProxyAddress(dao, nonce1);
+    newVoting = newAddress1;
+    const nonce2 = await buildNonceForAddress(dao, 1, provider);
+    const newAddress2 = await calculateNewProxyAddress(dao, nonce2);
+    dotVoting = newAddress2;
 
     // app initialisation payloads
     const votingInitPayload = await encodeActCall(votingInitSignature, [
         votingToken,
         BN('600000000000000000'),
         BN('250000000000000000'),
+        259200,
+    ]);
+
+    const dotVotingInitPayload = await encodeActCall(dotVotingInitSignature, [
+        votingToken,
+        BN('500000000000000000'),
+        0,
         259200,
     ]);
 
@@ -80,6 +90,12 @@ async function firstTx() {
             votingInitPayload,
             true,
         ]),
+        encodeActCall(newAppInstanceSignature, [
+            dotVotingAppId,
+            dotVotingBase,
+            dotVotingInitPayload,
+            true,
+        ]),
         encodeActCall(createPermissionSignature, [
             tokens,
             newVoting,
@@ -87,15 +103,27 @@ async function firstTx() {
             voting,
         ]),
         encodeActCall(createPermissionSignature, [
-            tokens,
+            voting,
             newVoting,
             keccak256('MODIFY_SUPPORT_ROLE'),
             voting,
         ]),
         encodeActCall(createPermissionSignature, [
-            tokens,
+            voting,
             newVoting,
             keccak256('MODIFY_QUORUM_ROLE'),
+            voting,
+        ]),
+        encodeActCall(createPermissionSignature, [
+            tokens,
+            dotVoting,
+            keccak256('ROLE_ADD_CANDIDATES'),
+            voting,
+        ]),
+        encodeActCall(createPermissionSignature, [
+            tokens,
+            dotVoting,
+            keccak256('ROLE_CREATE_VOTES'),
             voting,
         ]),
     ]);
@@ -106,7 +134,7 @@ async function firstTx() {
             calldata: calldatum[0],
         },
         {
-            to: acl,
+            to: dao,
             calldata: calldatum[1],
         },
         {
@@ -116,6 +144,18 @@ async function firstTx() {
         {
             to: acl,
             calldata: calldatum[3],
+        },
+        {
+            to: acl,
+            calldata: calldatum[4],
+        },
+        {
+            to: acl,
+            calldata: calldatum[5],
+        },
+        {
+            to: acl,
+            calldata: calldatum[6],
         },
     ];
     const script = encodeCallScript(actions);

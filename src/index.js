@@ -5,18 +5,18 @@ const utils = require('ethers/utils');
 const {keccak256} = require('web3-utils');
 
 const {RLP} = utils;
-const provider = ethers.getDefaultProvider('rinkeby');
+const provider = ethers.getDefaultProvider('mainnet');
 const BN = utils.bigNumberify;
-const env = 'rinkeby';
+const env = 'mainnet';
 
 // DAO addresses
-const dao = '0xDB7c076149F333992147A33D72dcEd2990f472d7';
-const acl = '0xe353ba4862a0614f3d3d75a776f3b83ceccbf4e5';
-const tokens = '0x90ee86f4ff9775075fbdffec7c139ecf94a3d1e8';
-const agent = '0x0cfd5ce97144b84ba6a1671463c38b1a6f36193d';
-const finance = '0x47c436868803ed467b794094947a3d755003b524';
-const voting = '0x8959e0944e32766e0bc7812d02a306bfe0d4308d';
-const votingToken = '0x642e277784aAf2E539D8eA802fC8858e056a5Aa7';
+const dao = '0xa365A8429FceFdbE1E684dDdDA3531b6e8d96e75';
+const acl = '0x2a39fdea819e6c6a88889d761139d86cf506a510';
+const tokens = '0xc191dc522672e10441bb9ee7c58946e9a8ebe4c0';
+const agent = '0x97103fda00a2b47eac669568063c00e65866a633';
+const finance = '0x1b7ac1c1caec47d9d384b39e2f940c4bfe4080fe';
+const voting = '0x82c603da6b707e99d16e3931414c2c8eafa76bf0';
+const votingToken = '0x8C32E54439C00E2B34355b8A1590046324bEaeA7';
 
 // new apps
 const votingAppId =

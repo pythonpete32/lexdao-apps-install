@@ -1,12 +1,12 @@
 {
-  "name": "appInstaller",
+  "name": "lexdao_app_install",
   "version": "0.1.0",
-  "description": "Automate Calculating, Minting, and Reporting SourceCred in Aragon DAOs",
+  "description": "adds a new voting & dot voting instance, rewires the permissions",
   "license": "MIT",
   "repository": "",
   "main": "dist/index.js",
   "author": {
-    "name": "pythonpete32",
+    "name": "aaron",
     "email": "aaron@DAOresear.ch",
     "url": "https://github.com/pythonpete32"
   },

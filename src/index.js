@@ -329,6 +329,7 @@ async function firstTx() {
             23. revoke BURN_ROLE on tokens revoke voting
             `,
         ],
+        () => {},
         env,
     );
 }
